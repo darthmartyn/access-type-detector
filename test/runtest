@@ -1,0 +1,3 @@
+gprclean -P test.gpr
+gprbuild -P test.gpr
+gprls -s -P test.gpr | ./ptrfinder1 | ./ptrfinder2
