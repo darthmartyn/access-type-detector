@@ -7,6 +7,11 @@ procedure Anonymous_Access_Type is
    begin
      null;
    end Local_Subprogram;
+   
+   function Local_Function return access Float is --  DETECTED ?
+   begin
+      return new Float'(20.0);
+   end Local_Function;
 
    Local_Integer : aliased Integer;
 
