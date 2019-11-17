@@ -1,10 +1,18 @@
-with Ada.Text_IO;         use Ada.Text_IO;
-with Libadalang.Analysis; use Libadalang.Analysis;
-with Libadalang.Common;   use Libadalang.Common;
-with Ada.Strings.Fixed;
-with Ada.Strings;
+with Ada.Text_IO;           use Ada.Text_IO;
+with Libadalang.Analysis;   use Libadalang.Analysis;
+with Libadalang.Common;     use Libadalang.Common;
+with Ada.Strings.Fixed;     use Ada.Strings.Fixed;
+with Ada.Strings;           use Ada.Strings;
+with Langkit_Support.Slocs; use Langkit_Support.Slocs;
 
 procedure ptrfinder1 is
+
+   procedure Detection
+     (Filename    : String;
+      Line_Number : Langkit_Support.Slocs.Line_Number) is
+   begin
+      Put_Line (Trim(Filename & ":" & Line_Number'Img,Left));
+   end Detection;
 
    LAL_CTX  : constant Analysis_Context := Create_Context;
 
@@ -24,21 +32,56 @@ begin
          function Process_Node(Node : Ada_Node'Class) return Visit_Status is
          begin
 
-           if Node.Kind in Ada_Access_Def
-                         | Ada_Access_To_Subp_Def_Range
-                         | Ada_Base_Type_Access_Def
-                         | Ada_Anonymous_Type_Access_Def_Range
-                         | Ada_Type_Access_Def_Range
-           then
-              Put_Line(
-                 Ada.Strings.Fixed.Trim(
-                    Source => Filename & ":" & Node.Sloc_Range.Start_Line'Img,
-                    Side  => Ada.Strings.Left
-                 )
-              );
-           end if;
+            case Node.Kind is
 
-           return Into;
+               when Ada_Object_Decl =>
+               --  Object of Access Type
+
+                  if Node.As_Object_Decl.F_Type_Expr.
+                       P_Designated_Type_Decl.P_Is_Access_Type then
+                    Detection (Filename,Node.Sloc_Range.Start_Line);
+                  end if;
+
+               when Ada_Access_To_Subp_Def =>
+               --  Access to subprogram
+
+                  Detection (Filename,Node.Sloc_Range.Start_Line);
+
+               when Ada_Type_Access_Def =>
+               -- Access Types
+
+                  Detection (Filename,Node.Sloc_Range.Start_Line);
+
+               when Ada_Anonymous_Type_Access_Def =>
+               -- Anonymous Access Type
+
+                  Detection (Filename,Node.Sloc_Range.Start_Line);
+
+               when Ada_Subtype_Decl =>
+               -- Could be a subtype of an Access Type
+
+                  if Node.As_Subtype_Decl.P_Is_Access_Type then
+                     Detection (Filename,Node.Sloc_Range.Start_Line);
+                  end if;
+
+               when Ada_Derived_Type_Def =>
+               -- Could be derived from an Access Type
+
+                  if Node.Parent.As_Type_Decl.P_Is_Access_Type then
+                     Detection (Filename,Node.Sloc_Range.Start_Line);
+                  end if;
+
+               when others =>
+
+                  return Into;
+                  --   Nothing interesting was found in this Node so
+                  --   continue processing it for other violations
+
+            end case;
+
+            return Over;
+            --   A violation was detected,  skip over any further processing
+            --   of this Node.
 
          end Process_Node;
 
