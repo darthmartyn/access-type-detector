@@ -1,6 +1,6 @@
 with "libadalang.gpr";
 
-project Access_Type_Detected is
+project Proj is
 
    for Languages use ("Ada");
    for Source_Dirs use ("src/**");
@@ -13,4 +13,4 @@ project Access_Type_Detected is
       for Executable ("ptrfinder2.adb") use "ptrfinder2";
    end Builder;
 
-end Access_Type_Detected;
+end Proj;
