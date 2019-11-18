@@ -17,12 +17,16 @@ procedure Anonymous_Access_Type is
 
    Local_Anon_Access_Type : access Integer; --  DETECTED ?
    
+   Local_Non_Subp_Access_Type : access procedure (X : access Integer); --  DETECTED ?
+   
    Anon_Access_Type : access GNAT.OS_Lib.String_List_Access with Unreferenced;  --  DETECTED ?
    
 begin
 
    Local_Anon_Access_Type := Local_Integer'Access;
+   
+   Local_Non_Subp_Access_Type := Local_Subprogram'Access;
 
-   Local_Subprogram(Local_Anon_Access_Type);
+   Local_Non_Subp_Access_Type(Local_Anon_Access_Type);
 
 end Anonymous_Access_Type;

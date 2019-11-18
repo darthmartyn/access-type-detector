@@ -11,7 +11,7 @@ procedure ptrfinder1 is
      (Filename    : String;
       Line_Number : Langkit_Support.Slocs.Line_Number) is
    begin
-      Put_Line (Trim(Filename & ":" & Line_Number'Img,Left));
+      Put_Line (Trim (Filename & ":" & Line_Number'Img,Left));
    end Detection;
 
    LAL_CTX  : constant Analysis_Context := Create_Context;
@@ -34,41 +34,21 @@ begin
 
             case Node.Kind is
 
+               when Ada_Base_Type_Decl =>
+
+                  if Node.As_Base_Type_Decl.P_Is_Access_Type then
+
+                     Detection (Filename,Node.Sloc_Range.Start_Line);
+
+                  end if;
+
                when Ada_Object_Decl =>
-               --  Object of Access Type
 
                   if Node.As_Object_Decl.F_Type_Expr.
                        P_Designated_Type_Decl.P_Is_Access_Type then
+
                     Detection (Filename,Node.Sloc_Range.Start_Line);
-                  end if;
 
-               when Ada_Access_To_Subp_Def =>
-               --  Access to subprogram
-
-                  Detection (Filename,Node.Sloc_Range.Start_Line);
-
-               when Ada_Type_Access_Def =>
-               -- Access Types
-
-                  Detection (Filename,Node.Sloc_Range.Start_Line);
-
-               when Ada_Anonymous_Type_Access_Def =>
-               -- Anonymous Access Type
-
-                  Detection (Filename,Node.Sloc_Range.Start_Line);
-
-               when Ada_Subtype_Decl =>
-               -- Could be a subtype of an Access Type
-
-                  if Node.As_Subtype_Decl.P_Is_Access_Type then
-                     Detection (Filename,Node.Sloc_Range.Start_Line);
-                  end if;
-
-               when Ada_Derived_Type_Def =>
-               -- Could be derived from an Access Type
-
-                  if Node.Parent.As_Type_Decl.P_Is_Access_Type then
-                     Detection (Filename,Node.Sloc_Range.Start_Line);
                   end if;
 
                when others =>
@@ -88,7 +68,7 @@ begin
       begin
 
          if not Unit.Has_Diagnostics then
-            Unit.Root.Traverse(Process_Node'Access);
+            Unit.Root.Traverse (Process_Node'Access);
          end if;
 
       end Process_Ada_Unit;
