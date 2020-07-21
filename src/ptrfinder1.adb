@@ -9,9 +9,12 @@ procedure ptrfinder1 is
 
    procedure Detection
      (Filename    : String;
-      Line_Number : Langkit_Support.Slocs.Line_Number) is
+      Line_Number : Langkit_Support.Slocs.Line_Number)
+   is
+      The_Filename : constant String := Trim (Filename,Ada.Strings.Left);
+      The_Line_Number : constant String := Trim (Line_Number'Img,Ada.Strings.Left);
    begin
-      Put_Line (Trim (Filename & ":" & Line_Number'Img,Left));
+      Put_Line (The_Filename & ":" & The_Line_Number);
    end Detection;
 
    LAL_CTX  : constant Analysis_Context := Create_Context;
