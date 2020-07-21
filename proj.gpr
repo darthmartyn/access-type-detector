@@ -1,4 +1,4 @@
-with "libadalang.gpr";
+with "libadalang";
 
 project Proj is
 
